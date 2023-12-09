@@ -1,0 +1,11 @@
+
+
+		"passingProfileRate" = số lượng pass profile / số lượng frofile appline
+        
+		"failProfileRate": số lượng fail profile / số lượng frofile appline
+        
+		"hiredCandidatesRate": số lượng hired / số lượng pass profile
+        
+		"rejectedCandidatesRate": số lượng rejected / số lượng frofile appline
+        
+		"completionRate": số lượng hired / số lượng yêu cầu tuyển
