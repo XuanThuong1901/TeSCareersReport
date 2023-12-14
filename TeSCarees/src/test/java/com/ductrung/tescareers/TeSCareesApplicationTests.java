@@ -1,10 +1,10 @@
-package com.ductrung.TeSCareers;
+package com.ductrung.tescareers;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class TeSCareersApplicationTests {
+class TeSCareesApplicationTests {
 
 	@Test
 	void contextLoads() {
