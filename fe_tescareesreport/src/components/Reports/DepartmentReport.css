@@ -1,0 +1,62 @@
+
+
+.select-department{
+    display: flex;
+    justify-content: center;
+    margin-top: 80px;
+    /* margin-left: 40px; */
+}
+.title{
+    font-size: 25px;
+    font-weight: 400;
+}
+.select-department-detail{
+    width: 250px;
+    height: 30px;
+    margin-left: 30px;
+    margin-top: 10px;
+    font-size: 15px;
+    font-weight: 550;
+    border-color: black;
+    border-width: 2px;
+}
+
+.chart{
+    margin-top: 50px;
+}
+.row{
+    display: flex;
+}
+
+.button-report > button{
+    /* margin-top: 40px; */
+    width:12.5rem;
+    font-size: 1rem;
+    border: none;
+    text-transform: uppercase;
+    line-height: normal;
+    padding: 5px;
+    height: 3rem;
+    min-width: 50px;
+    background-color: rgb(255, 217, 0);
+    color: var(--text);
+    font-weight: 600;
+    
+    border-radius: 8px;
+    transition: all 0.3s;
+    margin-left: 20px;
+    font-weight: 700;
+  }
+  .button-report > button:hover{
+    background-color: rgb(221, 188, 6);
+    /* color:  rgb(163, 139, 0); */
+  }
+  
+  .table-department-report{
+    margin: 50px;
+}
+.title-table{
+    display: flex;
+    font-size: 20px;
+    font-weight: 500;
+}

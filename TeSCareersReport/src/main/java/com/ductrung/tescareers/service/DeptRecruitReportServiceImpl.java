@@ -2,6 +2,7 @@ package com.ductrung.tescareers.service;
 
 import com.ductrung.tescareers.enitity.*;
 import com.ductrung.tescareers.model.request.ApplicationSubmissionRequest;
+import com.ductrung.tescareers.model.response.DepartmentReportResponse;
 import com.ductrung.tescareers.model.response.DeptRecruitReportResponse;
 import com.ductrung.tescareers.model.response.InfoRecruitmentJob;
 import com.ductrung.tescareers.repository.*;
@@ -25,27 +26,47 @@ public class DeptRecruitReportServiceImpl implements IDeptRecruitReportService{
     private final static String NUMBER_OF_FAIL_PROFILE = "fail";
     private final static String NUMBER_OF_REJECTED_CANDIDATES = "Rejected";
     private final static String NUMBER_OF_HIRED_CANDIDATES = "Hired";
+    private final static String STATE_FINISHED = "Finished";
 
     @Override
     public List<DeptRecruitReportResponse> deptRecruitReport(int departmentId) {
-        Departments department = departmentRepository.findById(departmentId).orElse(null);
-        if(department == null)
-            return null;
 
-        List<Recruitments> recruitments = recruitmentRepository.findByDepartment(department);
+        List<Recruitments> recruitments = getRecruitmentsByDepartment(departmentId);
         if(recruitments == null)
             return null;
 
         List<DeptRecruitReportResponse> responses = new ArrayList<>();
 
         for (Recruitments recruitment: recruitments) {
-            DeptRecruitReportResponse response = calculateRatio(recruitment);
+            DeptRecruitReportResponse response = calculateRatioDeptRecruit(recruitment);
             responses.add(response);
         }
         return responses;
     }
 
-    private DeptRecruitReportResponse calculateRatio(Recruitments recruitment){
+    @Override
+    public DepartmentReportResponse departmentReport(int departmentId) {
+
+        List<Recruitments> recruitments = getRecruitmentsByDepartment(departmentId);
+        if(recruitments == null)
+            return null;
+
+        DepartmentReportResponse response = calculateRatioDepartment(recruitments);
+        response.setIdDepartment(departmentId);
+        return response;
+    }
+
+    private List<Recruitments> getRecruitmentsByDepartment(int departmentId){
+        Departments department = departmentRepository.findById(departmentId).orElse(null);
+        if(department == null)
+            return null;
+
+        List<Recruitments> recruitments = recruitmentRepository.findByDepartment(department);
+
+        return recruitments;
+    }
+
+    private DeptRecruitReportResponse calculateRatioDeptRecruit(Recruitments recruitment){
         DeptRecruitReportResponse response = new DeptRecruitReportResponse();
         InfoRecruitmentJob infoRecruitmentJob = InfoRecruitmentJob.builder()
                 .recruitmentId(recruitment.getRecruitmentId())
@@ -113,20 +134,54 @@ public class DeptRecruitReportServiceImpl implements IDeptRecruitReportService{
         return numberListCounter;
     }
 
-//    private String checkStatusApplication(List<ApplicationHistories> applicationHistories){
-//        String status = "";
-//
-//        for (ApplicationHistories applicationHistory: applicationHistories) {
-//            if(applicationHistory.getApplicationStatus().getApplicationStatusName().equals(NUMBER_OF_PASSING_PROFILE)){
-//                status = NUMBER_OF_PASSING_PROFILE;
-//            }
-//            if(applicationHistory.getApplicationStatus().getApplicationStatusName().equalsIgnoreCase(NUMBER_OF_HIRED_CANDIDATES))
-//                status = NUMBER_OF_HIRED_CANDIDATES;
-//            if(applicationHistory.getApplicationStatus().getApplicationStatusName().equalsIgnoreCase(NUMBER_OF_REJECTED_CANDIDATES))
-//                status = NUMBER_OF_REJECTED_CANDIDATES;
-//        }
-//
-//        return status;
-//    }
 
+
+    private DepartmentReportResponse calculateRatioDepartment(List<Recruitments> recruitments){
+        int numberOfApplicants = 0;
+        int numberOfPassingProfile = 0;
+        int numberOfFailProfile = 0;
+        int numberOfRejectedCandidates = 0;
+        int numberOfHiredCandidates = 0;
+
+        for (Recruitments recruitment: recruitments) {
+            System.out.println(recruitment.getRecruitmentState().getRecruitmentStateName());
+            if(recruitment.getJobPostings().size() == 0 || !recruitment.getRecruitmentState().getRecruitmentStateName().equalsIgnoreCase(STATE_FINISHED))
+                continue;
+            numberOfApplicants += recruitment.getApplicationSubmissions().size();
+
+            HashMap<String, Integer> numberListCounter = counterApplications(recruitment.getApplicationSubmissions());
+            System.out.println(numberListCounter);
+
+            numberOfFailProfile += numberListCounter.get(NUMBER_OF_FAIL_PROFILE);
+            numberOfPassingProfile += numberListCounter.get(NUMBER_OF_PASSING_PROFILE);
+            numberOfRejectedCandidates += numberListCounter.get(NUMBER_OF_REJECTED_CANDIDATES);
+            numberOfHiredCandidates += numberListCounter.get(NUMBER_OF_HIRED_CANDIDATES);
+        }
+
+        DepartmentReportResponse response = new DepartmentReportResponse();
+        response.setNumberOfApplicants(numberOfApplicants);
+        response.setNumberOfFailProfile(numberOfFailProfile);
+        response.setNumberOfPassingProfile(numberOfPassingProfile);
+        response.setNumberOfHiredCandidates(numberOfHiredCandidates);
+        response.setNumberOfRejectedCandidates(numberOfRejectedCandidates);
+
+        ;
+//        response.setFailProfileRate(Math.round((float) (numberOfFailProfile / numberOfApplicants *100.0) / 100.0));
+//        response.setFailProfileRate(Math.round((float) (numberOfFailProfile / numberOfApplicants *100.0) / 100.0));
+//        response.setPassingProfileRate(Math.round((float) (numberOfPassingProfile / numberOfApplicants *100.0) / 100.0));
+//        response.setHiredCandidatesRate(Math.round((float) (numberOfHiredCandidates / numberOfApplicants *100.0) / 100.0));
+//        response.setRejectedCandidatesRate(Math.round((float) (numberOfRejectedCandidates / numberOfApplicants *100.0) / 100.0));
+//        response.setHiredCandidatePassProfRate(Math.round((float) (numberOfHiredCandidates / numberOfPassingProfile *100.0) / 100.0));
+//        response.setRejectedCandidatePassProfRate(Math.round((float) ((numberOfRejectedCandidates - numberOfFailProfile) / numberOfPassingProfile *100.0) / 100.0));
+
+        response.setFailProfileRate((float) numberOfFailProfile / numberOfApplicants);
+        response.setFailProfileRate((float) numberOfFailProfile / numberOfApplicants);
+        response.setPassingProfileRate((float) numberOfPassingProfile / numberOfApplicants);
+        response.setHiredCandidatesRate((float) numberOfHiredCandidates / numberOfApplicants);
+        response.setRejectedCandidatesRate((float) numberOfRejectedCandidates / numberOfApplicants);
+        response.setHiredCandidatePassProfRate((float) numberOfHiredCandidates / numberOfPassingProfile);
+        response.setRejectedCandidatePassProfRate((float) (numberOfRejectedCandidates - numberOfFailProfile) / numberOfPassingProfile);
+
+        return response;
+    }
 }

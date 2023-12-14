@@ -12,4 +12,5 @@ import java.util.List;
 public interface RecruitmentRepository extends JpaRepository<Recruitments, Integer> {
 
     List<Recruitments> findByDepartment(Departments department);
+
 }

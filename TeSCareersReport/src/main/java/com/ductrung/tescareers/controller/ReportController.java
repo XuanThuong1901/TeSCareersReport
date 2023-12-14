@@ -1,6 +1,7 @@
 package com.ductrung.tescareers.controller;
 
 import com.ductrung.tescareers.enitity.Recruitments;
+import com.ductrung.tescareers.model.response.DepartmentReportResponse;
 import com.ductrung.tescareers.model.response.DeptRecruitReportResponse;
 import com.ductrung.tescareers.service.IDeptRecruitReportService;
 import lombok.RequiredArgsConstructor;
@@ -23,8 +24,16 @@ public class ReportController {
 //        return recruitments;
 //    }
 
-    @PostMapping("/{departmentId}")
-    public List<DeptRecruitReportResponse> getReport(@PathVariable(name = "departmentId") int departmentId){
+    @PostMapping("/department/{departmentId}")
+    public DepartmentReportResponse getDepartmentReport(@PathVariable(name = "departmentId") int departmentId){
+
+        DepartmentReportResponse responses = iDeptRecruitReportService.departmentReport(departmentId);
+
+        return responses;
+    }
+
+    @PostMapping("/department/listRecruit/{departmentId}")
+    public List<DeptRecruitReportResponse> getDepartmentRecruitsReport(@PathVariable(name = "departmentId") int departmentId){
 
         List<DeptRecruitReportResponse> responses = iDeptRecruitReportService.deptRecruitReport(departmentId);
 
